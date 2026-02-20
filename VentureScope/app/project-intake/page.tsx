@@ -404,7 +404,7 @@ export default function ProjectIntake() {
                     {competitors.map((name) => (
                       <span
                         key={name}
-                        className="flex items-center gap-1.5 bg-slate-100 text-slate-700 text-sm font-medium px-3 py-1 rounded-full"
+                        className="flex items-center gap-1.5 bg-slate-100 text-slate-700 text-sm font-medium px-3 py-1 rounded-sm"
                       >
                         {name}
                         <button

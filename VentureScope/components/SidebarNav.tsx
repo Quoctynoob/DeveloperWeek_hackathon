@@ -14,7 +14,7 @@ export default function SidebarNav() {
   }
 
   function navClass(path: string) {
-    return `flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-lg mx-2 transition-colors ${
+    return `flex items-center gap-3 px-2 py-2.5 text-xs rounded-lg mx-2 transition-colors ${
       isActive(path)
         ? 'bg-blue-50 text-blue-600'
         : 'text-white hover:bg-slate-100 hover:text-slate-900'
@@ -27,7 +27,7 @@ export default function SidebarNav() {
       {/* Brand */}
       <div className="px-4 pt-5 pb-4 border-b border-slate-100">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 bg-linear-to-br from-blue-500 to-violet-500 rounded-[10px] flex items-center justify-center text-white font-extrabold text-base">
+          <div className="w-9 h-9 bg-linear-to-br bg-blue-600 rounded-[10px] flex items-center justify-center text-white font-extrabold text-base">
             V
           </div>
           <div className="font-bold text-[15px] text-white">VentureScope</div>

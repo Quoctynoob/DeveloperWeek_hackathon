@@ -34,7 +34,7 @@ export default function HomePage() {
       {/* Toolbar: button left, title right */}
       <div className="flex items-center justify-between py-4 border-b border-slate-100">
         <h3 className="text-[15px] font-bold text-slate-900">Recent Research</h3>
-        <Link href="/projectintake"><Button><Plus />New Projects</Button></Link>
+        <Link href="/project-intake"><Button><Plus />New Projects</Button></Link>
       </div>
 
       {/* Recent Research table */}

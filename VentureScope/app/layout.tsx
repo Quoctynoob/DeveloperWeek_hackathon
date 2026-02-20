@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import SidebarNav from "@/components/SidebarNav";
+import GlobalBreadcrumb from "@/components/GlobalBreadcrumb";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,6 +31,8 @@ export default function RootLayout({
 
           {/* Page content swaps here on every navigation */}
           <main className="flex-1 overflow-y-auto bg-white p-7">
+            <GlobalBreadcrumb />
+            <hr className="border-slate-200 -mx-7 mb-6" />
             {children}
           </main>
         </div>

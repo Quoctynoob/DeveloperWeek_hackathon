@@ -12,7 +12,59 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Pencil, Check, X, Plus } from 'lucide-react';
+import { Pencil, Check, X, Plus, Loader2 } from 'lucide-react';
+
+// ─── Loading screen helpers ───────────────────────────────────────────────────
+
+const PROGRESS_STAGES = [
+  { max: 20, label: 'Parsing structured intake data' },
+  { max: 40, label: 'Querying live web sources via You.com' },
+  { max: 60, label: 'Cross-validating market signals' },
+  { max: 80, label: 'Generating citation-backed research' },
+  { max: 100, label: 'Computing Confidence Score' },
+];
+
+function getStageLabel(p: number) {
+  return PROGRESS_STAGES.find(s => p < s.max)?.label ?? PROGRESS_STAGES[4].label;
+}
+
+function LoadingScreen({ progress }: { progress: number }) {
+  return (
+    <div className="flex flex-col items-center justify-center h-full min-h-[60vh] px-12">
+
+      {/* Spinner */}
+      <Loader2 className="w-12 h-12 text-dark-blue animate-spin mb-6" />
+
+      {/* Title */}
+      <h2 className="text-2xl font-bold text-slate-900 mb-2 text-center">
+        Synthesizing Market Intelligence
+      </h2>
+
+      {/* Subtitle */}
+      <p className="text-sm text-slate-400 text-center max-w-md mb-8">
+        Querying You.com APIs for real-time web data, validating structured signals,
+        and generating citation-backed insights…
+      </p>
+
+      {/* Progress bar */}
+      <div className="w-full max-w-lg">
+        <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden mb-3">
+          <div
+            className="h-full bg-dark-blue rounded-full transition-all duration-500 ease-out"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+
+        {/* Label + percentage */}
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-slate-500">{getStageLabel(progress)}</span>
+          <span className="text-slate-400 font-medium">{Math.round(progress)}%</span>
+        </div>
+      </div>
+
+    </div>
+  );
+}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -102,11 +154,27 @@ export default function ReviewPage() {
   const [editingSection, setEditingSection] = useState<number | null>(null);
   const [draft, setDraft] = useState<Partial<FormData>>({});
   const [competitorInput, setCompetitorInput] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     const stored = localStorage.getItem('ventureScope_intake');
     if (stored) setData(JSON.parse(stored));
   }, []);
+
+  // Simulate progress while the API call runs
+  useEffect(() => {
+    if (!isSubmitting) return;
+    setProgress(0);
+    const timer = setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 90) return prev; // hold at 90% until API resolves
+        const speed = prev < 40 ? 2.5 : prev < 70 ? 1.5 : 0.8;
+        return Math.min(prev + speed, 90);
+      });
+    }, 350);
+    return () => clearInterval(timer);
+  }, [isSubmitting]);
 
   function startEdit(section: number) {
     setEditingSection(section);
@@ -150,10 +218,27 @@ export default function ReviewPage() {
     router.push('/');
   }
 
-  function handleFinalSubmit() {
-    // TODO: Replace with your API call, e.g.:
-    // const res = await fetch('/api/projects', { method: 'POST', body: JSON.stringify(data) });
-    console.log('Final submission:', data);
+  async function handleFinalSubmit() {
+    if (!data) return;
+    setIsSubmitting(true);
+    try {
+      const res = await fetch('/api/evaluate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error ?? 'Evaluation failed');
+      // Jump bar to 100%, pause briefly, then navigate
+      setProgress(100);
+      localStorage.setItem('ventureScope_result', JSON.stringify(result));
+      localStorage.setItem('ventureScope_generated_at', new Date().toISOString());
+      await new Promise(r => setTimeout(r, 700));
+      router.push('/results');
+    } catch (err) {
+      console.error('[handleFinalSubmit]', err);
+      setIsSubmitting(false);
+    }
   }
 
   if (!data) {
@@ -163,6 +248,8 @@ export default function ReviewPage() {
       </div>
     );
   }
+
+  if (isSubmitting) return <LoadingScreen progress={progress} />;
 
   const isEditing = (n: number) => editingSection === n;
 
@@ -348,7 +435,7 @@ export default function ReviewPage() {
               {data.knownCompetitors?.length ? (
                 <div className="flex flex-wrap gap-2 mt-2">
                   {data.knownCompetitors.map(name => (
-                    <span key={name} className="bg-slate-100 text-slate-700 text-sm font-medium px-3 py-1 rounded-full">
+                    <span key={name} className="bg-slate-100 text-slate-700 text-sm font-medium px-3 py-1 rounded-sm">
                       {name}
                     </span>
                   ))}
@@ -420,7 +507,9 @@ export default function ReviewPage() {
       {/* ── Final Submit ──────────────────────────────────────────────────── */}
       <div className="flex justify-end gap-2">
         <Button size="sm" variant="outline" className="rounded-sm border-blue-500 border text-blue-500" onClick={handleSaveAndExit}>Save & Exit</Button>
-        <Button size="sm" className="sm" onClick={handleFinalSubmit}>Submit</Button>
+        <Button size="sm" className="rounded-sm" onClick={handleFinalSubmit} disabled={isSubmitting}>
+          {isSubmitting ? <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />Evaluating…</> : 'Submit'}
+        </Button>
       </div>
 
     </div>

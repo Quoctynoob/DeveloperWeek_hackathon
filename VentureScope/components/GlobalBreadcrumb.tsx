@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { House, FolderPlus, Send } from 'lucide-react';
+import { House, FolderPlus, Send, ClipboardList } from 'lucide-react';
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -15,7 +15,8 @@ type CrumbMeta = { label: string; icon?: React.ReactNode };
 
 const SEGMENT_META: Record<string, CrumbMeta> = {
   'project-intake': { label: 'Project Intake', icon: <FolderPlus className="w-3.5 h-3.5" /> },
-  'review':         { label: 'Review', icon: <Send className="w-3.5 h-3.5" /> },
+  'review':         { label: 'Review',          icon: <Send     className="w-3.5 h-3.5" /> },
+  'results':        { label: 'Report',          icon: <ClipboardList className="w-3.5 h-3.5" /> },
 };
 
 const HOME: CrumbMeta = { label: 'All Projects', icon: <House className="w-3.5 h-3.5" /> };
