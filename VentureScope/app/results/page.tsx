@@ -169,19 +169,35 @@ function ResultsContent() {
   }, [id]);
 
   async function handleGeneratePdf() {
-    if (!intake || isGenerating) return;
+    if (!intake || !result || isGenerating) return;
     setIsGenerating(true);
+
     try {
-      // Send the full session intake (all form fields) so template placeholders resolve
+      // 1. Get the session for the Startup Name
       const sessions: { id: string; intake: Record<string, unknown> }[] =
         JSON.parse(localStorage.getItem('ventureScope_sessions') ?? '[]');
       const session = id ? sessions.find(s => s.id === id) : sessions[0];
       const fullIntake = session?.intake ?? intake;
 
+      // 2. Parse the clean summary data
+      const { confidence, riskLevel } = parseRiskScore(result.riskScore.text);
+
+      // 3. Create the simplified data object
+      const pdfData = {
+        startupName:     fullIntake.startupName,
+        riskLevel:       riskLevel,
+        confidenceScore: `${confidence}%`,
+        synthesisText:   result.synthesis.text,
+        // Cleaning up citations: joins them into a readable string or "No citations available"
+        citations:       result.synthesis.citations?.length 
+                           ? result.synthesis.citations.join(', ') 
+                           : "Sources available upon request."
+      };
+
       const res = await fetch('/api/generate-pdf', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(fullIntake),
+        body: JSON.stringify(pdfData), 
       });
 
       if (!res.ok) {
@@ -193,11 +209,11 @@ function ResultsContent() {
       const url  = URL.createObjectURL(blob);
       const a    = document.createElement('a');
       a.href     = url;
-      a.download = `${intake.startupName}_Secure_Memo.pdf`;
+      a.download = `${intake.startupName}_Validation_Memo.pdf`;
       a.click();
       URL.revokeObjectURL(url);
     } catch (err) {
-      console.error('[handleGeneratePdf]', err);
+      console.error('[handleGeneratePdf] Error:', err);
     } finally {
       setIsGenerating(false);
     }
