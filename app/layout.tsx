@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import SidebarNav from "@/components/SidebarNav";
-import GlobalBreadcrumb from "@/components/GlobalBreadcrumb";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,18 +22,8 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-hidden`}>
-        <div className="flex h-screen overflow-hidden">
-          {/* Sidebar — always visible, never remounts */}
-          <SidebarNav />
-
-          {/* Page content swaps here on every navigation */}
-          <main className="flex-1 overflow-y-auto bg-white p-7">
-            <GlobalBreadcrumb />
-            <hr className="border-slate-200 -mx-7 mb-6" />
-            {children}
-          </main>
-        </div>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        {children}
       </body>
     </html>
   );
