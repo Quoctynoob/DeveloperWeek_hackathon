@@ -28,9 +28,9 @@ export default function SidebarNav() {
       <div className="px-4 pt-5 pb-4 border-b border-slate-100">
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 bg-linear-to-br bg-blue-600 rounded-[10px] flex items-center justify-center text-white font-extrabold text-base">
-            V
+            L
           </div>
-          <div className="font-bold text-[15px] text-white">VentureScope</div>
+          <div className="font-bold text-[15px] text-white">lito.ai</div>
         </div>
       </div>
 
