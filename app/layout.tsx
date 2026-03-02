@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "VentureScope",
-  description: "Venture analytics platform",
+  title: "lito",
+  description: "lito.ai :)",
 };
 
 export default function RootLayout({

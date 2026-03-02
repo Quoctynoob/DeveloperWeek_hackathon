@@ -1,17 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useRouter } from "next/navigation";
 import { FaApple, FaGoogle } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { registerUser, confirmEmail } from "@/lib/auth";
 
 const signupSchema = z
   .object({
-    email: z.email("Invalid email address"),
+    email: z.string().email("Invalid email address"),
     password: z.string().min(8, "Password must be at least 8 characters"),
     confirmPassword: z.string(),
   })
@@ -23,7 +25,13 @@ const signupSchema = z
 type SignupFormData = z.infer<typeof signupSchema>;
 
 export default function SignupPage() {
-  const [step, setStep] = useState<"email" | "password">("email");
+  const [step, setStep] = useState<"email" | "password" | "verify">("email");
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [verifyCode, setVerifyCode] = useState<string[]>(Array(6).fill(""));
+  const otpRefs = useRef<(HTMLInputElement | null)[]>(Array(6).fill(null));
+  const [verifying, setVerifying] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState("");
+  const router = useRouter();
 
   const {
     register,
@@ -39,10 +47,139 @@ export default function SignupPage() {
   const confirmPasswordValue = watch("confirmPassword") ?? "";
 
   async function onSubmit(data: SignupFormData) {
-    // TODO: wire up auth logic
-    console.log(data);
+    setAuthError(null);
+    try {
+      await registerUser(data.email, data.password, data.email);
+      setPendingEmail(data.email);
+      setStep("verify"); // Cognito sends a 6-digit code to their email
+    } catch (err: any) {
+      if (err.name === "UsernameExistsException") {
+        setAuthError("An account with this email already exists.");
+      } else if (err.name === "InvalidPasswordException") {
+        setAuthError("Password must include uppercase, lowercase, and a number.");
+      } else {
+        setAuthError(err.message ?? "Something went wrong.");
+      }
+    }
   }
 
+  function handleOtpChange(index: number, value: string) {
+    const digit = value.replace(/\D/g, "").slice(-1);
+    const next = [...verifyCode];
+    next[index] = digit;
+    setVerifyCode(next);
+    if (digit && index < 5) otpRefs.current[index + 1]?.focus();
+  }
+
+  function handleOtpKeyDown(index: number, e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Backspace" && !verifyCode[index] && index > 0) {
+      otpRefs.current[index - 1]?.focus();
+    }
+  }
+
+  function handleOtpPaste(e: React.ClipboardEvent<HTMLInputElement>) {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    const next = Array(6).fill("");
+    for (let i = 0; i < pasted.length; i++) next[i] = pasted[i];
+    setVerifyCode(next);
+    otpRefs.current[Math.min(pasted.length, 5)]?.focus();
+  }
+
+  async function onVerify() {
+    const code = verifyCode.join("");
+    if (!code.trim()) return;
+    setVerifying(true);
+    setAuthError(null);
+    try {
+      await confirmEmail(pendingEmail, code);
+      router.push("/login"); // verified — send them to login
+    } catch (err: any) {
+      if (err.name === "CodeMismatchException") {
+        setAuthError("Incorrect code. Please try again.");
+      } else if (err.name === "ExpiredCodeException") {
+        setAuthError("Code expired. Please sign up again.");
+      } else {
+        setAuthError(err.message ?? "Verification failed.");
+      }
+    } finally {
+      setVerifying(false);
+    }
+  }
+
+  // ── Verify email step ──────────────────────────────────────────────
+  if (step === "verify") {
+    return (
+      <div className="min-h-screen flex">
+        <div className="hidden lg:block w-1/2 bg-black" />
+        <div className="w-full lg:w-1/2 flex items-center justify-center bg-white px-8">
+          <div className="w-full max-w-sm">
+            <div className="mb-8 text-center">
+              <h1 className="text-xl font-semibold text-black tracking-tight">Enter verification code</h1>
+              <p className="mt-1 text-xs text-gray-600">
+                We sent a 6-digit code to <span className="font-medium text-black">{pendingEmail}</span>
+              </p>
+            </div>
+
+            <div className="flex items-center justify-center gap-2">
+              {[0, 1, 2].map((i) => (
+                <input
+                  key={i}
+                  ref={(el) => { otpRefs.current[i] = el; }}
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={1}
+                  value={verifyCode[i]}
+                  onChange={(e) => handleOtpChange(i, e.target.value)}
+                  onKeyDown={(e) => handleOtpKeyDown(i, e)}
+                  onPaste={handleOtpPaste}
+                  className="w-11 h-13 text-center text-lg font-semibold border border-gray-300 rounded-md focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+                />
+              ))}
+              <span className="text-gray-400 text-xl select-none">—</span>
+              {[3, 4, 5].map((i) => (
+                <input
+                  key={i}
+                  ref={(el) => { otpRefs.current[i] = el; }}
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={1}
+                  value={verifyCode[i]}
+                  onChange={(e) => handleOtpChange(i, e.target.value)}
+                  onKeyDown={(e) => handleOtpKeyDown(i, e)}
+                  onPaste={handleOtpPaste}
+                  className="w-11 h-13 text-center text-lg font-semibold border border-gray-300 rounded-md focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+                />
+              ))}
+            </div>
+
+            {authError && (
+              <p className="mt-2 text-xs text-red-500 text-center">{authError}</p>
+            )}
+
+            <div className="text-gray-500 text-xs text-center mt-2">
+              Didn't receive the code? <span className="underline font-semibold">Resend</span>
+            </div>
+
+            <Button
+              type="button"
+              disabled={verifyCode.join("").length !== 6 || verifying}
+              onClick={onVerify}
+              className="mt-4 w-full bg-black text-white hover:bg-gray-800 transition-colors"
+            >
+              {verifying ? "Verifying…" : "Verify"}
+            </Button>
+
+            <div className="text-gray-500 text-xs text-center mt-2">
+              By clicking verify, you agree to <br />our <span className="underline font-semibold">Terms of Service</span> and <span className="underline font-semibold">Privacy Policy</span>.
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Main signup form ───────────────────────────────────────────────
   return (
     <div className="min-h-screen flex">
       {/* Left half */}
@@ -80,7 +217,9 @@ export default function SignupPage() {
 
             <div
               className={`space-y-1.5 transition-[opacity,transform] duration-400 ease-out -mx-0.75 px-0.75 pb-0.75 ${
-                step === "password" ? "opacity-100 translate-y-0 mt-3 max-h-40" : "opacity-0 -translate-y-1 mt-0 max-h-0 overflow-hidden pointer-events-none"
+                step === "password"
+                  ? "opacity-100 translate-y-0 mt-3 max-h-40"
+                  : "opacity-0 -translate-y-1 mt-0 max-h-0 overflow-hidden pointer-events-none"
               }`}
             >
               <div className="space-y-1.5">
@@ -102,7 +241,9 @@ export default function SignupPage() {
 
             <div
               className={`space-y-1.5 transition-[opacity,transform] duration-400 ease-out -mx-0.75 px-0.75 pb-0.75 ${
-                passwordValue.trim() ? "opacity-100 translate-y-0 mt-3 max-h-40" : "opacity-0 -translate-y-1 mt-0 max-h-0 overflow-hidden pointer-events-none"
+                passwordValue.trim()
+                  ? "opacity-100 translate-y-0 mt-3 max-h-40"
+                  : "opacity-0 -translate-y-1 mt-0 max-h-0 overflow-hidden pointer-events-none"
               }`}
             >
               <Label htmlFor="confirmPassword" className="text-black text-sm font-medium">
@@ -119,6 +260,11 @@ export default function SignupPage() {
                 <p className="text-xs text-red-500">{errors.confirmPassword.message}</p>
               )}
             </div>
+
+            {/* Auth error */}
+            {authError && (
+              <p className="mt-2 text-xs text-red-500 text-center">{authError}</p>
+            )}
 
             {step === "email" ? (
               <Button

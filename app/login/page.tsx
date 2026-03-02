@@ -4,13 +4,15 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useRouter } from "next/navigation";
 import { FaApple, FaGoogle } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { loginUser } from "@/lib/auth";
 
 const loginSchema = z.object({
-  email: z.email("Invalid email address"),
+  email: z.string().email("Invalid email address"),
   password: z.string().min(1, "Password is required"),
 });
 
@@ -18,6 +20,8 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const [step, setStep] = useState<"email" | "password">("email");
+  const [authError, setAuthError] = useState<string | null>(null);
+  const router = useRouter();
 
   const {
     register,
@@ -32,8 +36,23 @@ export default function LoginPage() {
   const passwordValue = watch("password") ?? "";
 
   async function onSubmit(data: LoginFormData) {
-    // TODO: wire up auth logic
-    console.log(data);
+    setAuthError(null);
+    try {
+      const nextStep = await loginUser(data.email, data.password);
+      if (nextStep.signInStep === "DONE") {
+        router.push("/");
+      }
+    } catch (err: any) {
+      if (err.name === "NotAuthorizedException") {
+        setAuthError("Incorrect email or password.");
+      } else if (err.name === "UserNotFoundException") {
+        setAuthError("No account found with this email.");
+      } else if (err.name === "UserNotConfirmedException") {
+        setAuthError("Please verify your email before logging in.");
+      } else {
+        setAuthError(err.message ?? "Something went wrong.");
+      }
+    }
   }
 
   return (
@@ -73,7 +92,9 @@ export default function LoginPage() {
 
             <div
               className={`space-y-1.5 transition-[opacity,transform] duration-400 ease-out -mx-0.75 px-0.75 pb-0.75 ${
-                step === "password" ? "opacity-100 translate-y-0 mt-3 max-h-40" : "opacity-0 -translate-y-1 mt-0 max-h-0 overflow-hidden pointer-events-none"
+                step === "password"
+                  ? "opacity-100 translate-y-0 mt-3 max-h-40"
+                  : "opacity-0 -translate-y-1 mt-0 max-h-0 overflow-hidden pointer-events-none"
               }`}
             >
               <div className="flex items-center justify-between">
@@ -95,6 +116,11 @@ export default function LoginPage() {
                 <p className="text-xs text-red-500">{errors.password.message}</p>
               )}
             </div>
+
+            {/* Auth error */}
+            {authError && (
+              <p className="mt-2 text-xs text-red-500 text-center">{authError}</p>
+            )}
 
             {step === "email" ? (
               <Button
@@ -150,7 +176,7 @@ export default function LoginPage() {
           <p className="mt-5 text-center text-xs text-gray-400">
             By clicking continue, you agree to
             <br />
-            our <span></span>
+            our{" "}
             <a href="#" className="text-black underline hover:text-gray-700">
               Terms of Service
             </a>{" "}
