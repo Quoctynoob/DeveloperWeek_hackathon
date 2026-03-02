@@ -21,6 +21,10 @@ export default function SidebarNav() {
     }`;
   }
 
+  function iconStroke(path: string) {
+    return isActive(path) ? 2 : 1;
+  }
+
   return (
     <aside className="w-30 bg-gray-bg border-r border-slate-200 flex flex-col shrink-0">
 
@@ -33,17 +37,17 @@ export default function SidebarNav() {
 
       {/* Navigation */}
       <nav className="flex flex-col gap-1 py-3 flex-1">
-        <Link href="/" className={navClass('/')}><LayoutDashboard /> Dashboard</Link>
-        <Link href="/analytics" className={navClass('/analytics')}><ChartColumnBig /> Analytics</Link>
-        <Link href="/portfolio" className={navClass('/portfolio')}><Calendar /> Portfolio</Link>
-        <Link href="/library" className={navClass('/library')}><Database /> Data Library</Link>
+        <Link href="/" className={navClass('/')}><LayoutDashboard strokeWidth={iconStroke('/')} /> Dashboard</Link>
+        <Link href="/analytics" className={navClass('/analytics')}><ChartColumnBig strokeWidth={iconStroke('/analytics')} /> Analytics</Link>
+        <Link href="/portfolio" className={navClass('/portfolio')}><Calendar strokeWidth={iconStroke('/portfolio')} /> Portfolio</Link>
+        <Link href="/library" className={navClass('/library')}><Database strokeWidth={iconStroke('/library')} /> Data Library</Link>
 
         <div className="flex-1" />
 
-        <Link href="/settings" className={navClass('/settings')}><Settings /> Settings</Link>
-        <Link href="/help" className={navClass('/help')}><CircleQuestionMark  /> Get Help</Link>
-        <Link href="/team" className={navClass('/team')}><Users /> Team</Link>
-        <Link href="/icon" className={navClass('/icon')}><Circle /></Link>
+        <Link href="/settings" className={navClass('/settings')}><Settings strokeWidth={iconStroke('/settings')} /> Settings</Link>
+        <Link href="/help" className={navClass('/help')}><CircleQuestionMark strokeWidth={iconStroke('/help')} /> Get Help</Link>
+        <Link href="/team" className={navClass('/team')}><Users strokeWidth={iconStroke('/team')} /> Team</Link>
+        <Link href="/icon" className={navClass('/icon')}><Circle strokeWidth={iconStroke('/icon')} /></Link>
       </nav>
 
     </aside>
