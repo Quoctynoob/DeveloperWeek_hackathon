@@ -11,7 +11,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Plus } from 'lucide-react';
+import { Plus, LogOut } from 'lucide-react';
+import { getUser, logoutUser } from '@/lib/auth';
+import { useRouter } from 'next/navigation';
 
 type Session = {
   id: string;
@@ -27,21 +29,40 @@ const RISK_COLORS: Record<string, string> = {
   High:   'bg-red-50 text-red-700 border border-red-200',
 };
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
 export default function HomePage() {
   const [sessions, setSessions] = useState<Session[]>([]);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const stored = localStorage.getItem('ventureScope_sessions');
     if (stored) setSessions(JSON.parse(stored));
+
+    // Get logged in user
+    getUser().then((u) => {
+      if (u) setUserEmail(u.signInDetails?.loginId ?? null);
+    });
   }, []);
+
+  async function handleLogout() {
+    await logoutUser();
+    router.push('/login');
+  }
 
   return (
     <>
       {/* Heading */}
-      <div className="mb-6">
+      <div className="mb-6 flex items-start justify-between">
         <h1 className="m-0 text-[22px] font-bold text-slate-900">Recent Research</h1>
+        <div>
+          <Button variant="outline" size="sm" onClick={handleLogout} className="flex items-center gap-1.5 text-slate-600">
+            <LogOut className="h-4 w-4" />
+            Logout
+          </Button>
+          {userEmail && (
+              <p className="mt-1 text-sm text-slate-500">Signed in as <span className="font-medium text-slate-700">{userEmail}</span></p>
+            )}
+        </div>
       </div>
 
       {/* Toolbar */}
