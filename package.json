@@ -25,6 +25,7 @@
     "@progress/kendo-react-layout": "^14.1.1",
     "@progress/kendo-react-popup": "^14.1.1",
     "@progress/kendo-theme-default": "^13.0.1",
+    "aws-amplify": "^6.16.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.34.3",
