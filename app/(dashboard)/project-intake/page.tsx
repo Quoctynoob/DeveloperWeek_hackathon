@@ -28,7 +28,7 @@ import { X, Plus } from 'lucide-react';
 // ─── Zod schema ───────────────────────────────────────────────────────────────
 
 const formSchema = z.object({
-  startupName:              z.string().min(1, 'Startup name is required'),
+  company:              z.string().min(1, 'Startup name is required'),
   industry:                 z.string().min(1, 'Industry is required'),
   fundingStage:             z.string().min(1, 'Funding stage is required'),
   primaryGeography:         z.string().min(1, 'Primary geography is required'),
@@ -103,7 +103,7 @@ export default function ProjectIntake() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      startupName:              '',
+      company:              '',
       industry:                 '',
       fundingStage:             '',
       primaryGeography:         '',
@@ -163,7 +163,7 @@ export default function ProjectIntake() {
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="startupName"
+                name="company"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Startup Name <span className="text-red-500">*</span></FormLabel>

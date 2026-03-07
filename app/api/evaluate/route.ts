@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
     const data = await req.json();
 
     const {
-      startupName,
+      company,
       industry,
       primaryGeography,
       knownCompetitors         = [] as string[],
@@ -129,7 +129,7 @@ Cite your sources.`
       youAgent(
         `You are a senior venture analyst writing an AI Research Synthesis report section.
 
-Startup: ${startupName} (${industry})
+Startup: ${company} (${industry})
 Problem: ${coreProblemStatement}
 Solution: ${proposedSolutionOverview}
 Ideal Customer Profile (ICP): ${targetCustomerProfile}
@@ -146,7 +146,7 @@ Be direct, analytical, and grounded in evidence. Cite sources where possible.`
       youAgent(
         `You are a market research analyst specializing in regional market sizing.
 
-Startup: ${startupName}
+Startup: ${company}
 Industry: ${industry}
 Problem: ${coreProblemStatement}
 Target Region: ${primaryGeography}
@@ -163,7 +163,7 @@ Cite real data sources where available.`
       youAgent(
         `You are a venture risk analyst evaluating startup business model viability.
 
-Startup: ${startupName}
+Startup: ${company}
 Industry: ${industry}
 Stage: ${fundingStage ?? 'Unknown'}
 Revenue Model: ${revenueModelStructure}

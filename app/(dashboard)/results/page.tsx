@@ -17,7 +17,7 @@ type EvalResult = {
   tamData:         Section;
   riskScore:       Section;
 };
-type IntakeData = { startupName: string; industry: string; fundingStage: string };
+type IntakeData = { company: string; industry: string; fundingStage: string };
 type RiskLevel  = 'Low' | 'Medium' | 'High';
 type NewsArticle = { number: number; title: string; sourceUrl: string; sourceDomain: string; summary: string };
 
@@ -184,7 +184,7 @@ function ResultsContent() {
 
       // 3. Create the simplified data object
       const pdfData = {
-        startupName:     fullIntake.startupName,
+        company:     fullIntake.company,
         riskLevel:       riskLevel,
         confidenceScore: `${confidence}%`,
         synthesisText:   result.synthesis.text,
@@ -209,7 +209,7 @@ function ResultsContent() {
       const url  = URL.createObjectURL(blob);
       const a    = document.createElement('a');
       a.href     = url;
-      a.download = `${intake.startupName}_Validation_Memo.pdf`;
+      a.download = `${intake.company}_Validation_Memo.pdf`;
       a.click();
       URL.revokeObjectURL(url);
     } catch (err) {
@@ -242,7 +242,7 @@ function ResultsContent() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3 flex-wrap">
             <h1 className="text-2xl font-bold text-slate-900">
-              Validation Memo: {intake.startupName}
+              Validation Memo: {intake.company}
             </h1>
             <span className="text-xs font-medium bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full">
               {intake.industry}
@@ -272,7 +272,7 @@ function ResultsContent() {
           <div className="grid grid-cols-3 gap-x-8 gap-y-4 relative z-10">
             <div>
               <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Name</p>
-              <p className="text-sm font-medium text-slate-800">{intake.startupName}</p>
+              <p className="text-sm font-medium text-slate-800">{intake.company}</p>
             </div>
             <div>
               <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Industry</p>

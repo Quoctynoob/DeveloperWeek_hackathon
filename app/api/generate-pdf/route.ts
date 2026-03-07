@@ -5,7 +5,7 @@ import path from 'path';
 export async function POST(req: NextRequest) {
   try {
     const data = await req.json();
-    const { startupName } = data;
+    const { company } = data;
 
     // ─── Read template ─────────────────────────────────────────────────────────
     const templatePath = path.join(process.cwd(), 'public', 'template.docx');
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
 
     // ─── STEP 2: Upload PDF to PDF Services ───────────────────────────────────
     const uploadForm = new FormData();
-    uploadForm.append('file', new Blob([generatedPdfBuffer], { type: 'application/pdf' }), `${startupName}_memo.pdf`);
+    uploadForm.append('file', new Blob([generatedPdfBuffer], { type: 'application/pdf' }), `${company}_memo.pdf`);
 
     const uploadRes = await fetch(`${pdfBase}/pdf-services/api/documents/upload`, {
       method: 'POST',
@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         documentId,
         config: {
-          userPassword:  startupName,
+          userPassword:  company,
           ownerPassword: "lito.ai",
           permissions:   ['PRINT'],
         },
@@ -148,7 +148,7 @@ export async function POST(req: NextRequest) {
       status: 200,
       headers: {
         'Content-Type':        'application/pdf',
-        'Content-Disposition': `attachment; filename="${startupName}_Secure_Memo.pdf"`,
+        'Content-Disposition': `attachment; filename="${company}_Secure_Memo.pdf"`,
       },
     });
 

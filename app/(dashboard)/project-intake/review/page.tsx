@@ -69,7 +69,7 @@ function LoadingScreen({ progress }: { progress: number }) {
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type FormData = {
-  startupName:              string;
+  company:              string;
   industry:                 string;
   fundingStage:             string;
   primaryGeography:         string;
@@ -287,7 +287,7 @@ export default function ReviewPage() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <FieldLabel>Startup Name</FieldLabel>
-                <Input value={draft.startupName ?? ''} onChange={e => set('startupName', e.target.value)} />
+                <Input value={draft.company ?? ''} onChange={e => set('company', e.target.value)} />
               </div>
               <div>
                 <FieldLabel>Industry</FieldLabel>
@@ -325,7 +325,7 @@ export default function ReviewPage() {
         ) : (
           <div className="space-y-5">
             <div className="grid grid-cols-2 gap-6">
-              <ReadField label="Startup Name" value={data.startupName} />
+              <ReadField label="Startup Name" value={data.company} />
               <ReadField label="Industry" value={data.industry} />
             </div>
             <div className="grid grid-cols-2 gap-6">
