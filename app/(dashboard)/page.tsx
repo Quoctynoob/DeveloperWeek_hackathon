@@ -39,25 +39,7 @@ import {
 } from 'lucide-react';
 import { getUser, logoutUser } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
-
-type Session = {
-  id: string;
-  createdAt: string;
-  intake: {
-    company: string;
-    industry: string;
-    fundingStage: string;
-    primaryRegion?: string;
-    revenueModel?: string;
-    decision?: string;
-    status?: string;
-  };
-  confidence: number;
-  riskLevel: string;
-};
-
-type SortKey = 'industry' | 'confidence' | 'createdAt';
-type SortDir = 'asc' | 'desc';
+import { type Session, type SortKey, type SortDir } from '@/types';
 
 const PAGE_SIZES = [5, 10, 20, 30];
 const COLS = 12;

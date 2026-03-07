@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -24,75 +23,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { X, Plus } from 'lucide-react';
-
-// ─── Zod schema ───────────────────────────────────────────────────────────────
-
-const formSchema = z.object({
-  company:              z.string().min(1, 'Startup name is required'),
-  industry:                 z.string().min(1, 'Industry is required'),
-  fundingStage:             z.string().min(1, 'Funding stage is required'),
-  primaryGeography:         z.string().min(1, 'Primary geography is required'),
-  targetCustomerProfile:    z.string().min(10, 'Please provide at least a brief ICP description'),
-  coreProblemStatement:     z.string().min(10, 'Please describe the core problem'),
-  proposedSolutionOverview: z.string().min(10, 'Please describe your proposed solution'),
-  revenueModelStructure:    z.string().min(1, 'Revenue model is required'),
-  businessModelExplanation: z.string().min(10, 'Please explain your business model'),
-  knownCompetitors:           z.array(z.string()).optional(),
-  competitiveDifferentiators: z.string().min(10, 'Please describe your competitive differentiators'),
-  // Card 4 — only collected when fundingStage === 'Seed'
-  monthlyRecurringRevenue:    z.string().optional(),
-  activeCustomerCount:        z.string().optional(),
-  monthOverMonthGrowth:       z.string().optional(),
-  // Last card — always required
-  evaluationTerms:            z.boolean().refine(val => val === true, {
-    message: 'You must accept the evaluation terms to proceed',
-  }),
-});
-
-type FormValues = z.infer<typeof formSchema>;
-
-// ─── Dropdown options ─────────────────────────────────────────────────────────
-
-const INDUSTRIES = [
-  'AI/Machine Learning',
-  'Fintech',
-  'HealthTech/BioTech',
-  'Climate/Energy',
-  'Enterprise Saas/B2B Tools',
-  'Consumer/Marketplace',
-  'Other',
-];
-
-const FUNDING_STAGES = [
-  'Idea',
-  'Pre-Seed',
-  'Seed',
-];
-
-const GEOGRAPHIES = [
-  'North America',
-  'Latin America',
-  'Europe',
-  'Middle East & Africa',
-  'South Asia',
-  'East Asia',
-  'Southeast Asia',
-  'Oceania',
-  'Global',
-  'Other',
-];
-
-const REVENUE_MODELS = [
-  'SaaS / Subscription',
-  'Marketplace / Transaction Fee',
-  'Freemium',
-  'License',
-  'Usage-Based / Pay-per-use',
-  'E-commerce / Direct Sales',
-  'Consulting / Services',
-  'Advertising',
-  'Other',
-];
+import { intakeSchema, type IntakeFormValues, INDUSTRIES, FUNDING_STAGES, GEOGRAPHIES, REVENUE_MODELS } from '@/types';
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
@@ -100,8 +31,8 @@ export default function ProjectIntake() {
   const router = useRouter();
   const [competitorInput, setCompetitorInput] = useState('');
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<IntakeFormValues>({
+    resolver: zodResolver(intakeSchema),
     defaultValues: {
       company:              '',
       industry:                 '',
@@ -137,7 +68,7 @@ export default function ProjectIntake() {
 
   const fundingStage = form.watch('fundingStage');
 
-  function onSubmit(values: FormValues) {
+  function onSubmit(values: IntakeFormValues) {
     localStorage.setItem('litoAi_intake', JSON.stringify(values));
     router.push('/project-intake/review');
   }

@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Pencil, Check, X, Plus, Loader2 } from 'lucide-react';
+import { type IntakeFormValues, INDUSTRIES, FUNDING_STAGES, GEOGRAPHIES, REVENUE_MODELS } from '@/types';
 
 // ─── Loading screen helpers ───────────────────────────────────────────────────
 
@@ -66,43 +67,6 @@ function LoadingScreen({ progress }: { progress: number }) {
   );
 }
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-type FormData = {
-  company:              string;
-  industry:                 string;
-  fundingStage:             string;
-  primaryGeography:         string;
-  targetCustomerProfile:    string;
-  coreProblemStatement:     string;
-  proposedSolutionOverview: string;
-  revenueModelStructure:    string;
-  businessModelExplanation: string;
-  knownCompetitors:         string[];
-  competitiveDifferentiators: string;
-  monthlyRecurringRevenue?:   string;
-  activeCustomerCount?:       string;
-  monthOverMonthGrowth?:      string;
-  evaluationTerms:            boolean;
-};
-
-// ─── Dropdown options ─────────────────────────────────────────────────────────
-
-const INDUSTRIES = [
-  'AI/Machine Learning','Fintech','HealthTech/BioTech','Climate/Energy',
-  'Enterprise Saas/B2B Tools','Consumer/Marketplace','Other',
-];
-const FUNDING_STAGES = ['Idea', 'Pre-Seed', 'Seed'];
-const GEOGRAPHIES = [
-  'North America','Latin America','Europe','Middle East & Africa',
-  'South Asia','East Asia','Southeast Asia','Oceania','Global','Other',
-];
-const REVENUE_MODELS = [
-  'SaaS / Subscription','Marketplace / Transaction Fee','Freemium','License',
-  'Usage-Based / Pay-per-use','E-commerce / Direct Sales','Consulting / Services',
-  'Advertising','Other',
-];
-
 // ─── Shared sub-components ────────────────────────────────────────────────────
 
 function ReadField({ label, value }: { label: string; value?: string }) {
@@ -150,9 +114,9 @@ function SectionHeader({
 
 export default function ReviewPage() {
   const router = useRouter();
-  const [data, setData] = useState<FormData | null>(null);
+  const [data, setData] = useState<IntakeFormValues | null>(null);
   const [editingSection, setEditingSection] = useState<number | null>(null);
-  const [draft, setDraft] = useState<Partial<FormData>>({});
+  const [draft, setDraft] = useState<Partial<IntakeFormValues>>({});
   const [competitorInput, setCompetitorInput] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -183,7 +147,7 @@ export default function ReviewPage() {
 
   function confirmEdit() {
     if (!data) return;
-    const updated = { ...data, ...draft } as FormData;
+    const updated = { ...data, ...draft } as IntakeFormValues;
     setData(updated);
     localStorage.setItem('litoAi_intake', JSON.stringify(updated));
     setEditingSection(null);
@@ -196,7 +160,7 @@ export default function ReviewPage() {
     setCompetitorInput('');
   }
 
-  function set<K extends keyof FormData>(field: K, value: FormData[K]) {
+  function set<K extends keyof IntakeFormValues>(field: K, value: IntakeFormValues[K]) {
     setDraft(prev => ({ ...prev, [field]: value }));
   }
 

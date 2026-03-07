@@ -7,19 +7,7 @@ import remarkGfm from 'remark-gfm';
 import { Button } from '@/components/ui/button';
 import { FileDown, Info, SquareArrowOutUpRight, X, TrendingUp, DollarSign, AlertTriangle, RotateCcw, Loader2 } from 'lucide-react';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-type Section    = { text: string; citations: unknown[] };
-type EvalResult = {
-  industryNews:    Section;
-  competitorLinks: Section;
-  synthesis:       Section;
-  tamData:         Section;
-  riskScore:       Section;
-};
-type IntakeData = { company: string; industry: string; fundingStage: string };
-type RiskLevel  = 'Low' | 'Medium' | 'High';
-type NewsArticle = { number: number; title: string; sourceUrl: string; sourceDomain: string; summary: string };
+import { type Section, type EvalResult, type RiskLevel, type NewsArticle, type IntakeData } from '@/types';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

@@ -2,10 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const AGENTS_URL = 'https://api.you.com/v1/agents/runs';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-type Citation  = { title: string; url: string; snippet: string };
-type AgentResult = { text: string; citations: Citation[] };
+import { type Citation, type AgentResult } from '@/types';
 
 // ─── SSE-aware agent caller ───────────────────────────────────────────────────
 // The Agents API always returns SSE (server-sent events), even when stream is
