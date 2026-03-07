@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@aws-amplify/adapter-nextjs": "^1.7.2",
     "@hookform/resolvers": "^5.2.2",
     "@progress/kendo-csv": "^1.0.0",
     "@progress/kendo-data-query": "^1.7.3",
