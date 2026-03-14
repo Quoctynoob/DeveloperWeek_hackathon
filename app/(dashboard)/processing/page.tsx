@@ -3,6 +3,7 @@
 import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import useSWR from "swr";
+import { Button } from "@/components/ui/button";
 
 const STEPS = [
   { key: "extract",   label: "Extracting PDF content",      agent: "Agent 1" },
@@ -14,78 +15,59 @@ const STEPS = [
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
-function ProcessingContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const jobId = searchParams.get("jobId");
-
+function JobProgressCard({ jobId }: { jobId: string }) {
   const { data, error } = useSWR(
-    jobId ? `/api/job-status?jobId=${jobId}` : null,
+    `/api/job-status?jobId=${jobId}`,
     fetcher,
-    {
-      refreshInterval: (data) => {
-        if (!data) return 2000;
-        if (data.status === "COMPLETE" || data.status === "FAILED") return 0;
-        return 2000;
-      },
-      onSuccess(data) {
-        if (data?.status === "COMPLETE" && data?.memoS3Key) {
-          router.push(`/results?jobId=${jobId}`);
-        }
-      },
-    }
+    { refreshInterval: 2000 }
   );
-
-  if (!jobId) {
-    return (
-      <div className="flex items-center justify-center h-64 text-slate-400 text-sm">
-        No job ID provided.
-      </div>
-    );
-  }
 
   const currentStep = data?.currentStep ?? null;
   const currentIndex = STEPS.findIndex((s) => s.key === currentStep);
   const failed = data?.status === "FAILED" || !!error;
+  const complete = data?.status === "COMPLETE";
 
   return (
-    <div className="max-w-lg mx-auto mt-20 px-4">
-      <h1 className="text-2xl font-semibold text-slate-900 mb-2">
-        Analyzing your pitch deck
-      </h1>
-      <p className="text-sm text-slate-500 mb-10">
-        {data?.companyName ?? "Your company"} · Job {jobId.slice(0, 8)}…
-      </p>
+    <div className="border border-slate-200 rounded-lg p-6 bg-white">
+      {/* Header */}
+      <div className="mb-4 pb-4 border-b border-slate-100">
+        <h3 className="text-base font-semibold text-slate-900">
+          {data?.companyName ?? "Processing..."}
+        </h3>
+        <p className="text-xs text-slate-500 mt-1">
+          Job {jobId.slice(0, 8)}…
+        </p>
+      </div>
 
-      <ol className="space-y-4">
+      {/* Progress Steps */}
+      <ol className="space-y-3">
         {STEPS.map((step, i) => {
-          const isDone = currentIndex > i || data?.status === "COMPLETE";
-          const isActive = currentIndex === i;
-          const isPending = currentIndex < i && data?.status !== "COMPLETE";
+          const isDone = currentIndex > i || complete;
+          const isActive = currentIndex === i && !complete && !failed;
 
           return (
-            <li key={step.key} className="flex items-start gap-4">
-              {/* Status dot */}
+            <li key={step.key} className="flex items-start gap-3">
+              {/* Status indicator */}
               <div className="mt-0.5 shrink-0">
                 {isDone ? (
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-white text-xs">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-white text-xs">
                     ✓
                   </span>
                 ) : isActive ? (
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500">
-                    <span className="h-2.5 w-2.5 rounded-full bg-white animate-pulse" />
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-500">
+                    <span className="h-2 w-2 rounded-full bg-white animate-pulse" />
                   </span>
                 ) : (
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-300 text-xs">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-300 text-[10px]">
                     {i + 1}
                   </span>
                 )}
               </div>
 
               {/* Label */}
-              <div>
+              <div className="flex-1">
                 <p
-                  className={`text-sm font-medium ${
+                  className={`text-xs font-medium ${
                     isDone
                       ? "text-emerald-600"
                       : isActive
@@ -95,24 +77,91 @@ function ProcessingContent() {
                 >
                   {step.label}
                 </p>
-                <p className="text-xs text-slate-400">{step.agent}</p>
+                <p className="text-[10px] text-slate-400">{step.agent}</p>
               </div>
             </li>
           );
         })}
       </ol>
 
+      {/* Status Messages */}
       {failed && (
-        <div className="mt-10 rounded-md bg-red-50 border border-red-200 p-4 text-sm text-red-700">
-          The pipeline failed. Please try uploading again or contact support.
+        <div className="mt-4 rounded-md bg-red-50 border border-red-200 p-3 text-xs text-red-700">
+          Pipeline failed. Please try again or contact support.
+        </div>
+      )}
+
+      {complete && (
+        <div className="mt-4">
+          <Button
+            size="sm"
+            className="w-full"
+            onClick={() => window.location.href = `/results?jobId=${jobId}&page=1`}
+          >
+            View Results
+          </Button>
         </div>
       )}
 
       {!data && !error && (
-        <p className="mt-10 text-xs text-slate-400 animate-pulse">
+        <p className="mt-4 text-xs text-slate-400 animate-pulse">
           Connecting to pipeline…
         </p>
       )}
+    </div>
+  );
+}
+
+function ProcessingContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Support both single jobId (legacy) and multiple jobIds
+  const singleJobId = searchParams.get("jobId");
+  const multipleJobIds = searchParams.get("jobIds");
+
+  const jobIds = multipleJobIds
+    ? multipleJobIds.split(',').filter(Boolean)
+    : singleJobId
+    ? [singleJobId]
+    : [];
+
+  if (jobIds.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-64 text-slate-400 text-sm">
+        No job IDs provided.
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-5xl mx-auto mt-10 px-4 pb-20">
+      <div className="mb-6">
+        <h1 className="text-2xl font-semibold text-slate-900 mb-2">
+          Analyzing {jobIds.length > 1 ? `${jobIds.length} pitch decks` : 'your pitch deck'}
+        </h1>
+        <p className="text-sm text-slate-500">
+          You can navigate away from this page anytime. Your analyses will continue running in the background.
+        </p>
+      </div>
+
+      {/* Navigation Actions */}
+      <div className="mb-6 flex gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => router.push('/')}
+        >
+          View Dashboard
+        </Button>
+      </div>
+
+      {/* Job Progress Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {jobIds.map((jobId) => (
+          <JobProgressCard key={jobId} jobId={jobId} />
+        ))}
+      </div>
     </div>
   );
 }
