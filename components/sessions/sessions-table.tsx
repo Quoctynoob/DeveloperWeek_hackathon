@@ -218,7 +218,7 @@ export function SessionsTable({ sessions, sortKey, sortDir }: SessionsTableProps
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
-                          <Link href={`/results?id=${s.id}`}>View</Link>
+                          <Link href={`/results?jobId=${s.id}&page=1`}>View</Link>
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
