@@ -12,7 +12,7 @@ type UploadState =
 export function useUpload() {
   const [state, setState] = useState<UploadState>({ status: "idle" });
 
-  async function upload(file: File, companyName: string) {
+  async function upload(file: File) {
     try {
       // Step 1: Get presigned URL + jobId
       setState({ status: "uploading", progress: "Requesting upload URL…" });
@@ -23,7 +23,6 @@ export function useUpload() {
         body: JSON.stringify({
           fileName: file.name,
           fileType: file.type || "application/pdf",
-          companyName,
         }),
       });
 
@@ -47,7 +46,7 @@ export function useUpload() {
       const jobRes = await fetch("/api/start-job", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ jobId, s3Key, companyName }),
+        body: JSON.stringify({ jobId, s3Key }),
       });
 
       if (!jobRes.ok) throw new Error("Failed to start pipeline");

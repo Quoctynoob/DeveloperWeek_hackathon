@@ -5,14 +5,14 @@ import { s3, S3_INPUT_BUCKET } from "@/lib/aws-clients";
 import { randomUUID } from "crypto";
 
 // POST /api/upload
-// Body: { fileName: string, fileType: string, companyName: string }
+// Body: { fileName: string, fileType: string }
 // Returns: { jobId, uploadUrl, s3Key }
 export async function POST(req: NextRequest) {
-  const { fileName, fileType, companyName } = await req.json();
+  const { fileName, fileType } = await req.json();
 
-  if (!fileName || !fileType || !companyName) {
+  if (!fileName || !fileType) {
     return NextResponse.json(
-      { error: "fileName, fileType, and companyName are required" },
+      { error: "fileName and fileType are required" },
       { status: 400 }
     );
   }
