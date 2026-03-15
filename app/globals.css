@@ -48,6 +48,12 @@
   --color-stripe-after-upload: #7AAFFF;
   --color-success: #369083;
   --color-failed: #C13425;
+  --color-bar-extraction: #E8F2FF;
+  --color-bar-parse: #ACA7C9;
+  --color-bar-review: #E56B6F;
+  --color-bar-verification: #8DC1FF;
+  --color-bar-score: #202D56;
+  --color-bar-export: #4FA49F;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

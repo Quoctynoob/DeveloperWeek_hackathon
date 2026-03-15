@@ -3,6 +3,7 @@ import { filterAndSortSessions, parseSearchParams } from '@/lib/session-utils';
 import { SessionsToolbar } from '@/components/sessions/sessions-toolbar';
 import { SessionsTable } from '@/components/sessions/sessions-table';
 import { PaginationControls } from '@/components/sessions/pagination-controls';
+import { PipelineBar } from '@/components/dashboard/pipeline-bar';
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -30,6 +31,71 @@ export default async function HomePage({ searchParams }: PageProps) {
       {/* Heading */}
       <div className="mb-6">
         <h1 className="m-0 text-3xl font-semibold text-slate-900">Current Batch</h1>
+      </div>
+
+      {/* Dashboard layout */}
+      <div className="mb-6 flex gap-6">
+
+        {/* Left area */}
+        <div className="flex w-1/2 flex-col gap-4">
+          {/* Pipeline Bar */}
+          <PipelineBar sessions={allSessions} />
+
+          {/* Main Graph + Stat A / Stat B */}
+          <div className="flex h-80 gap-4">
+            <div className="flex h-full flex-1 items-center justify-center rounded-lg bg-slate-200">
+              <span className="text-sm font-medium text-slate-500">Main Graph</span>
+            </div>
+            <div className="flex h-full w-40 flex-col gap-4">
+              <div className="flex flex-1 items-center justify-center rounded-lg bg-slate-200">
+                <span className="text-sm font-medium text-slate-500">Stat A</span>
+              </div>
+              <div className="flex flex-1 items-center justify-center rounded-lg bg-slate-200">
+                <span className="text-sm font-medium text-slate-500">Stat B</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Middle area */}
+        <div className="-mt-16 flex flex-1 flex-col gap-4">
+          {/* Metric 1 / 2 / 3 */}
+          <div className="flex gap-3">
+            <div className="flex h-32 flex-1 items-center justify-center rounded-lg bg-slate-200">
+              <span className="text-sm font-medium text-slate-500">Metric 1</span>
+            </div>
+            <div className="flex h-32 flex-1 items-center justify-center rounded-lg bg-slate-200">
+              <span className="text-sm font-medium text-slate-500">Metric 2</span>
+            </div>
+            <div className="flex h-32 flex-1 items-center justify-center rounded-lg bg-slate-200">
+              <span className="text-sm font-medium text-slate-500">Metric 3</span>
+            </div>
+          </div>
+
+          {/* Summary Bar */}
+          <div className="flex h-32 w-full items-center justify-center rounded-lg bg-slate-200">
+            <span className="text-sm font-medium text-slate-500">Summary Bar</span>
+          </div>
+
+          {/* Tag 1 / 2 / 3 */}
+          <div className="mt-auto flex gap-3">
+            <div className="flex h-44 flex-1 items-center justify-center rounded-lg bg-slate-200">
+              <span className="text-sm font-medium text-slate-500">Tag 1</span>
+            </div>
+            <div className="flex h-44 flex-1 items-center justify-center rounded-lg bg-slate-200">
+              <span className="text-sm font-medium text-slate-500">Tag 2</span>
+            </div>
+            <div className="flex h-44 flex-1 items-center justify-center rounded-lg bg-slate-200">
+              <span className="text-sm font-medium text-slate-500">Tag 3</span>
+            </div>
+          </div>
+        </div>
+
+        {/* News Feed */}
+        <div className="-mt-16 flex w-64 items-start justify-center overflow-y-auto rounded-lg bg-slate-200 pt-4" style={{ minHeight: '340px' }}>
+          <span className="text-sm font-medium text-slate-500">News Feed</span>
+        </div>
+
       </div>
 
       {/* Toolbar */}
