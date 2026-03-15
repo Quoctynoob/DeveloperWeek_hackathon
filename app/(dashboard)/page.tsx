@@ -60,7 +60,7 @@ export default async function HomePage({ searchParams }: PageProps) {
         {/* Middle area */}
         <div className="-mt-16 flex flex-1 flex-col gap-4">
           {/* Metric 1 / 2 / 3 */}
-          <div className="flex gap-3">
+          <div className="mt-auto flex gap-3">
             <div className="flex h-32 flex-1 items-center justify-center rounded-lg bg-slate-200">
               <span className="text-sm font-medium text-slate-500">Metric 1</span>
             </div>
@@ -78,7 +78,7 @@ export default async function HomePage({ searchParams }: PageProps) {
           </div>
 
           {/* Tag 1 / 2 / 3 */}
-          <div className="mt-auto flex gap-3">
+          <div className="flex gap-3">
             <div className="flex h-44 flex-1 items-center justify-center rounded-lg bg-slate-200">
               <span className="text-sm font-medium text-slate-500">Tag 1</span>
             </div>
@@ -92,7 +92,7 @@ export default async function HomePage({ searchParams }: PageProps) {
         </div>
 
         {/* News Feed */}
-        <div className="-mt-16 flex w-64 items-start justify-center overflow-y-auto rounded-lg bg-slate-200 pt-4" style={{ minHeight: '340px' }}>
+        <div className="-mt-16 flex w-64 items-start justify-center self-end overflow-y-auto rounded-lg bg-slate-200 pt-4" style={{ height: '464px' }}>
           <span className="text-sm font-medium text-slate-500">News Feed</span>
         </div>
 
