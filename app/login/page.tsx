@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { loginUser } from "@/lib/auth";
-import Image from "next/image";
 
 export default function LoginPage() {
   const [step, setStep] = useState<"email" | "password">("email");
@@ -53,14 +52,6 @@ export default function LoginPage() {
     <div className="min-h-screen flex">
       {/* Left half */}
       <div className="hidden lg:flex w-1/2 bg-black items-center justify-center p-12" >
-        <Image
-          src="/lito_logo.png"
-          alt="Lito.ai Logo"
-          width={699}
-          height={837}
-          className="w-full h-auto max-w-lg"
-          priority
-        />
       </div>
 
       {/* Right half */}
