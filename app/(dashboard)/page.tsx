@@ -5,6 +5,7 @@ import { SessionsTable } from '@/components/sessions/sessions-table';
 import { PaginationControls } from '@/components/sessions/pagination-controls';
 import { PipelineBar } from '@/components/dashboard/pipeline-bar';
 import { AlertFeed } from '@/components/dashboard/alert-feed';
+import { BellCurveChart } from '@/components/dashboard/bell-curve-chart';
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -42,19 +43,9 @@ export default async function HomePage({ searchParams }: PageProps) {
           {/* Pipeline Bar */}
           <PipelineBar sessions={allSessions} />
 
-          {/* Main Graph + Stat A / Stat B */}
-          <div className="flex h-80 gap-4">
-            <div className="flex h-full flex-1 items-center justify-center rounded-lg bg-slate-200">
-              <span className="text-sm font-medium text-slate-500">Main Graph</span>
-            </div>
-            <div className="flex h-full w-40 flex-col gap-4">
-              <div className="flex flex-1 items-center justify-center rounded-lg bg-slate-200">
-                <span className="text-sm font-medium text-slate-500">Stat A</span>
-              </div>
-              <div className="flex flex-1 items-center justify-center rounded-lg bg-slate-200">
-                <span className="text-sm font-medium text-slate-500">Stat B</span>
-              </div>
-            </div>
+          {/* Main Graph */}
+          <div className="h-80 w-full">
+            <BellCurveChart />
           </div>
         </div>
 
